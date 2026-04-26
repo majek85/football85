@@ -1,0 +1,7 @@
+body { font-family: sans-serif; background: #011627; color: white; text-align: center; direction: rtl; }
+.tabs { margin: 20px; }
+button { padding: 10px 20px; cursor: pointer; background: #FF9F1C; border: none; margin: 5px; border-radius: 5px; }
+.match-item { background: rgba(255,255,255,0.1); padding: 15px; margin: 10px auto; width: 80%; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+.score { background: #FF9F1C; color: #011627; padding: 20px; border-radius: 5px; font-weight: bold; }
+.loading { color: #2EC4B6; animation: blink 1s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }

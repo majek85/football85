@@ -1,0 +1,12 @@
+{
+  "name": "football85-backend",
+  "version": "1.0.0",
+  "description": "Backend for 85 football app",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
