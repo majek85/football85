@@ -1,18 +1,25 @@
 import { createClient } from '@supabase/supabase-js'
-import fetch from 'node-fetch'
 
-// الاتصال بـ Supabase
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-)
 
 export default async function handler(req, res) {
-    const API_KEY = process.env.FOOTBALL_API_KEY
-
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
+
+    const API_KEY = process.env.FOOTBALL_API_KEY;
+    const SUPA_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const SUPA_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!SUPA_URL || !SUPA_KEY) {
+        return res.status(500).json({ error: "Missing Supabase Environment Variables in Vercel." });
+    }
+
+    if (!API_KEY) {
+        return res.status(500).json({ error: "Missing Football API Key in Vercel." });
+    }
+
+    // الاتصال بـ Supabase
+    const supabase = createClient(SUPA_URL, SUPA_KEY);
 
     try {
         // 1. جلب البيانات
