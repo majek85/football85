@@ -4,6 +4,8 @@
 // Falls back to mock data if API is unavailable
 // ===================================================
 
+import { supabase } from '../lib/supabase';
+
 const SPORTSDB = 'https://www.thesportsdb.com/api/v1/json/2';
 
 // Major league IDs on TheSportsDB
@@ -84,25 +86,44 @@ export const footballAPI = {
   // Get upcoming + recent matches from top leagues
   getTodayMatches: async () => {
     try {
-      const leagueIds = Object.values(LEAGUE_IDS);
-      const allPromises = leagueIds.map(id =>
-        Promise.allSettled([getLeagueNextEvents(id), getLeagueLastEvents(id)])
-      );
-      const results = await Promise.all(allPromises);
-      const all = [];
-      results.forEach(([nextRes, lastRes]) => {
-        if (nextRes.status === 'fulfilled') all.push(...(nextRes.value || []).slice(0, 2));
-        if (lastRes.status === 'fulfilled') all.push(...(lastRes.value || []).slice(0, 2));
-      });
-      // Deduplicate by fixture id
-      const seen = new Set();
-      return all.filter(m => {
-        if (seen.has(m.fixture.id)) return false;
-        seen.add(m.fixture.id);
-        return true;
-      });
+      // 1. نجلب المباريات من Supabase
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .order('match_time', { ascending: true });
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        // 2. تحويل البيانات للصيغة التي تفهمها الواجهة (React)
+        return data.map(m => {
+          let homeScore = null;
+          let awayScore = null;
+          if (m.score && m.score !== '0-0' && m.score !== '-') {
+            const parts = m.score.split('-');
+            homeScore = parseInt(parts[0]);
+            awayScore = parseInt(parts[1]);
+          }
+
+          return {
+            fixture: { 
+              id: m.fixture_id, 
+              date: m.match_time, 
+              status: { short: m.status || 'NS', elapsed: null } 
+            },
+            league: { id: '0', name: 'أهم المباريات', country: '', logo: null },
+            teams: {
+              home: { id: m.home_team, name: m.home_team, logo: m.home_logo },
+              away: { id: m.away_team, name: m.away_team, logo: m.away_logo }
+            },
+            goals: { home: homeScore, away: awayScore }
+          };
+        });
+      }
+      return MOCK_MATCHES;
     } catch (e) {
-      return null;
+      console.error('Supabase fetch error:', e);
+      return MOCK_MATCHES;
     }
   },
 
