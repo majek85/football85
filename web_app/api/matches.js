@@ -7,8 +7,12 @@ const supabase = createClient(
     process.env.SUPABASE_ANON_KEY
 )
 
-export async function handler(event) {
+export default async function handler(req, res) {
     const API_KEY = process.env.FOOTBALL_API_KEY
+
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
 
     try {
         // 1. جلب البيانات
@@ -44,27 +48,13 @@ export async function handler(event) {
 
         if (error) throw error
 
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({
-                message: 'Success!',
-                count: matches.length,
-                timestamp: new Date().toISOString()
-            })
-        }
+        return res.status(200).json({
+            message: 'Success!',
+            count: matches.length,
+            timestamp: new Date().toISOString()
+        })
     } catch (e) {
         console.error('Error:', e.message)
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            body: JSON.stringify({ error: e.message })
-        }
+        return res.status(500).json({ error: e.message })
     }
 }
