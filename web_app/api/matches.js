@@ -7,7 +7,10 @@ export default async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
 
     const API_KEY = process.env.FOOTBALL_API_KEY;
-    const SUPA_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    let SUPA_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    if (SUPA_URL) {
+        SUPA_URL = SUPA_URL.replace(/\/rest\/v1\/?$/, '');
+    }
     const SUPA_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
     if (!SUPA_URL || !SUPA_KEY) {
