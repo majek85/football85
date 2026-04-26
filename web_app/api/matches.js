@@ -37,6 +37,11 @@ export default async (req, res) => {
         )
 
         const result = await response.json();
+
+        if (!response.ok || result.message) {
+            throw new Error(`RapidAPI Error: ${result.message || response.statusText}`);
+        }
+
         const matches = result.response?.matches || result.matches || [];
 
         // 2. تجهيز البيانات
