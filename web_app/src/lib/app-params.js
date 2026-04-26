@@ -6,5 +6,8 @@ export const appParams = {
   appBaseUrl: typeof window !== 'undefined' ? window.location.origin : '',
 };
 
-// Netlify functions base URL
-export const API_BASE = '/.netlify/functions/api';
+// Netlify functions base URL (Old)
+// export const API_BASE = '/.netlify/functions/api';
+
+// Vercel serverless functions base URL
+export const API_BASE = '/api';
