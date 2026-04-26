@@ -36,20 +36,20 @@ export default async (req, res) => {
             }
         )
 
-        const result = await response.json()
-        const matches = result.data || []
+        const result = await response.json();
+        const matches = result.response?.matches || result.matches || [];
 
         // 2. تجهيز البيانات
         const formatted = matches.map(m => ({
             fixture_id: m.id,
-            home_team: m.home_team_name,
-            away_team: m.away_team_name,
-            home_logo: m.home_team_logo,
-            away_logo: m.away_team_logo,
-            score: `${m.home_score || 0}-${m.away_score || 0}`,
-            status: m.status,
-            match_time: m.start_time
-        }))
+            home_team: m.home?.name || 'Unknown',
+            away_team: m.away?.name || 'Unknown',
+            home_logo: null, // الـ API الجديد لا يرسل شعارات في هذه الصفحة
+            away_logo: null,
+            score: `${m.home?.score || 0}-${m.away?.score || 0}`,
+            status: m.status?.finished ? 'FT' : (m.status?.started ? 'LIVE' : 'NS'),
+            match_time: m.status?.utcTime || new Date().toISOString()
+        }));
 
         // 3. حفظ في Supabase
         const { error } = await supabase
