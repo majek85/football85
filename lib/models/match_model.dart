@@ -36,16 +36,29 @@
   });
 
   factory Match.fromJson(Map<String, dynamic> json) {
+    int? parsedHomeScore;
+    int? parsedAwayScore;
+    
+    if (json['score'] != null && json['score'].toString().contains('-')) {
+      final parts = json['score'].toString().split('-');
+      if (parts.length == 2) {
+        parsedHomeScore = int.tryParse(parts[0].trim());
+        parsedAwayScore = int.tryParse(parts[1].trim());
+      }
+    }
+
     return Match(
-      id: json['id'] is int ? json['id'] : 0,
-      homeTeam: json['homeTeam'] ?? 'Unknown',
-      awayTeam: json['awayTeam'] ?? 'Unknown',
-      homeScore: json['score']?['home'],
-      awayScore: json['score']?['away'],
+      id: json['fixture_id'] ?? 0,
+      homeTeam: json['home_team'] ?? 'Unknown',
+      awayTeam: json['away_team'] ?? 'Unknown',
+      homeLogo: json['home_logo'],
+      awayLogo: json['away_logo'],
+      homeScore: parsedHomeScore,
+      awayScore: parsedAwayScore,
       status: json['status'] ?? '',
-      elapsed: json['elapsed']?.toString() ?? '',
-      league: json['league'] ?? '',
-      date: json['date'],
+      elapsed: json['status'] ?? '',
+      league: 'World Football',
+      date: json['match_time'],
     );
   }
 

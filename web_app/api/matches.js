@@ -66,6 +66,7 @@ export default async (req, res) => {
         return res.status(200).json({
             message: 'Success!',
             count: matches.length,
+            data: formatted,
             timestamp: new Date().toISOString()
         })
     } catch (e) {

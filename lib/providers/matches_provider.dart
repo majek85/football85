@@ -206,9 +206,11 @@ class MatchesProvider with ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
-      liveMatches = await ApiService.getLiveMatches();
+      final allMatches = await ApiService.getLiveMatches();
+      // Filter only live matches if needed, for now we just show all or those marked as LIVE
+      liveMatches = allMatches.where((m) => m.status == 'LIVE' || m.status.contains("'")).toList();
     } catch (e) {
-      liveMatches = _getMockMatches();
+      liveMatches = [];
     }
     isLoading = false;
     notifyListeners();
@@ -223,18 +225,19 @@ class MatchesProvider with ChangeNotifier {
       matchesByDate = {}; // Reset
       if (results.isNotEmpty) {
         for (var match in results) {
-          final dateKey = match.date ?? DateFormat('yyyy-MM-dd').format(DateTime.now());
+          // Fallback to today's date if match date is somehow null
+          final dateKey = match.date != null ? DateFormat('yyyy-MM-dd').format(DateTime.parse(match.date!)) : DateFormat('yyyy-MM-dd').format(DateTime.now());
           if (!matchesByDate.containsKey(dateKey)) {
             matchesByDate[dateKey] = [];
           }
           matchesByDate[dateKey]!.add(match);
         }
       } else {
-        matchesByDate[DateFormat('yyyy-MM-dd').format(DateTime.now())] = _getMockMatches();
+        // No matches found in database
       }
     } catch (e) {
       matchesByDate.clear();
-      matchesByDate[DateFormat('yyyy-MM-dd').format(DateTime.now())] = _getMockMatches();
+      errorMessage = "Failed to load matches from database.";
     }
     isLoading = false;
     notifyListeners();
@@ -243,24 +246,5 @@ class MatchesProvider with ChangeNotifier {
   void setTab(String tab) {
     selectedTab = tab;
     notifyListeners();
-  }
-
-  List<Match> _getMockMatches() {
-    return [
-      Match(
-        id: 1,
-        league: 'Premier League',
-        leagueLogo: 'https://media.api-sports.io/football/leagues/39.png',
-        homeTeam: 'Arsenal',
-        homeLogo: 'https://media.api-sports.io/football/teams/42.png',
-        awayTeam: 'Chelsea',
-        awayLogo: 'https://media.api-sports.io/football/teams/49.png',
-        homeScore: 9,
-        awayScore: 5,
-        status: "FT",
-        elapsed: "FT",
-        channels: ["beIN Sports 1", "SSC HD 1"],
-      ),
-    ];
   }
 }

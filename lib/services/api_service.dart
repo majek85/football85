@@ -4,28 +4,31 @@ import '../core/constants.dart';
 import '../models/match_model.dart';
 
 class ApiService {
-  static Map<String, String> get _headers => {
+  static Map<String, String> get _supabaseHeaders => {
     'Content-Type': 'application/json',
+    'apikey': AppConstants.supabaseKey,
+    'Authorization': 'Bearer ${AppConstants.supabaseKey}',
   };
 
-  static Future<List<Match>> getLiveMatches() async {
-    const url = '${AppConstants.baseUrl}/liveMatches';
+  static Future<void> triggerVercelUpdate() async {
     try {
-      final response = await http.get(Uri.parse(url), headers: _headers);
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return data.map((m) => Match.fromJson(m)).toList();
-      }
-      return [];
-    } catch (e) {
-      return [];
+      await http.get(Uri.parse(AppConstants.vercelApiUrl));
+    } catch (_) {
+      // Ignore if triggering fails, we still try to read from Supabase
     }
   }
 
+  static Future<List<Match>> getLiveMatches() async {
+    // Currently we just fetch all matches. Later you can filter by status='LIVE'
+    return getAllMatches();
+  }
+
   static Future<List<Match>> getAllMatches() async {
-    const url = '${AppConstants.baseUrl}/todayMatches'; // This currently handles all matches in our backend
+    await triggerVercelUpdate(); // Trigger the backend to update data
+    
+    const url = '${AppConstants.supabaseUrl}/rest/v1/matches?select=*&order=match_time.asc';
     try {
-      final response = await http.get(Uri.parse(url), headers: _headers);
+      final response = await http.get(Uri.parse(url), headers: _supabaseHeaders);
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((m) => Match.fromJson(m)).toList();
