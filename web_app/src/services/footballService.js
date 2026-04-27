@@ -82,43 +82,56 @@ async function getLeagueLastEvents(leagueId) {
   return (data?.events || []).map(transformEvent).filter(Boolean);
 }
 
+// Helper to transform Supabase match to App format
+function transformSupabaseMatch(m) {
+  let homeScore = null;
+  let awayScore = null;
+  if (m.score && m.score !== '0-0' && m.score !== '-') {
+    const parts = m.score.split('-');
+    homeScore = parseInt(parts[0]);
+    awayScore = parseInt(parts[1]);
+  }
+
+  return {
+    fixture: { 
+      id: String(m.fixture_id), 
+      date: m.match_time, 
+      status: { short: m.status || 'NS', elapsed: null } 
+    },
+    league: { id: '0', name: 'أهم المباريات', country: '', logo: null },
+    teams: {
+      home: { id: m.home_team, name: m.home_team, logo: m.home_logo },
+      away: { id: m.away_team, name: m.away_team, logo: m.away_logo }
+    },
+    goals: { home: homeScore, away: awayScore }
+  };
+}
+
 export const footballAPI = {
   // Get upcoming + recent matches from top leagues
   getTodayMatches: async () => {
     try {
-      // 1. نجلب المباريات من Supabase
+      // 1. Trigger Vercel to update Supabase (silent)
+      // Use the actual production URL if available, or the current one
+      fetch('https://football85.vercel.app/api/matches').catch(() => {});
+
+      const start = new Date();
+      start.setDate(start.getDate() - 7);
+      const end = new Date();
+      end.setDate(end.getDate() + 7);
+
+      // 2. نجلب المباريات من Supabase (نطاق واسع للاختبار)
       const { data, error } = await supabase
         .from('matches')
         .select('*')
+        .gte('match_time', start.toISOString())
+        .lt('match_time', end.toISOString())
         .order('match_time', { ascending: true });
 
       if (error) throw error;
 
       if (data && data.length > 0) {
-        // 2. تحويل البيانات للصيغة التي تفهمها الواجهة (React)
-        return data.map(m => {
-          let homeScore = null;
-          let awayScore = null;
-          if (m.score && m.score !== '0-0' && m.score !== '-') {
-            const parts = m.score.split('-');
-            homeScore = parseInt(parts[0]);
-            awayScore = parseInt(parts[1]);
-          }
-
-          return {
-            fixture: { 
-              id: m.fixture_id, 
-              date: m.match_time, 
-              status: { short: m.status || 'NS', elapsed: null } 
-            },
-            league: { id: '0', name: 'أهم المباريات', country: '', logo: null },
-            teams: {
-              home: { id: m.home_team, name: m.home_team, logo: m.home_logo },
-              away: { id: m.away_team, name: m.away_team, logo: m.away_logo }
-            },
-            goals: { home: homeScore, away: awayScore }
-          };
-        });
+        return data.map(transformSupabaseMatch);
       }
       return MOCK_MATCHES;
     } catch (e) {
@@ -127,7 +140,7 @@ export const footballAPI = {
     }
   },
 
-  // Live matches — TheSportsDB free plan supports this endpoint
+  // Live matches
   getLiveMatches: async () => {
     const data = await safeFetch(`${SPORTSDB}/livescore.php?sport=Soccer`);
     return (data?.events || []).map(transformEvent).filter(Boolean);
@@ -135,9 +148,24 @@ export const footballAPI = {
 
   // Single match detail
   getMatch: async (id) => {
-    const data = await safeFetch(`${SPORTSDB}/lookupevent.php?id=${id}`);
-    const ev = data?.events?.[0];
-    return ev ? transformEvent(ev) : null;
+    try {
+      // 1. Try Supabase first
+      const { data, error } = await supabase
+        .from('matches')
+        .select('*')
+        .eq('fixture_id', id)
+        .single();
+
+      if (data) return transformSupabaseMatch(data);
+
+      // 2. Fallback to TheSportsDB
+      const res = await safeFetch(`${SPORTSDB}/lookupevent.php?id=${id}`);
+      const ev = res?.events?.[0];
+      return ev ? transformEvent(ev) : null;
+    } catch (e) {
+      console.warn('Match detail fetch error:', e);
+      return null;
+    }
   },
 
   // League standings

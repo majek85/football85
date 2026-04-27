@@ -9,13 +9,16 @@ import MatchEvents from '@/components/matches/MatchEvents';
 import LineupPitch from '@/components/matches/LineupPitch';
 import AdBanner from '@/components/layout/AdBanner';
 
-const MOCK_EVENTS = [
-  { time: { elapsed: 12 }, type: 'Goal', detail: 'Normal Goal', player: { name: 'Vinícius Jr.' }, team: { name: 'ريال مدريد' } },
-  { time: { elapsed: 34 }, type: 'Card', detail: 'Yellow Card', player: { name: 'Rodri' }, team: { name: 'مان سيتي' } },
-  { time: { elapsed: 45 }, type: 'Goal', detail: 'Penalty', player: { name: 'Haaland' }, team: { name: 'مان سيتي' } },
-  { time: { elapsed: 67 }, type: 'Goal', detail: 'Normal Goal', player: { name: 'Bellingham' }, team: { name: 'ريال مدريد' } },
-  { time: { elapsed: 78 }, type: 'subst', detail: 'Substitution', player: { name: 'Modric' }, team: { name: 'ريال مدريد' } },
-];
+const GET_MOCK_EVENTS = (id) => {
+  if (id !== '101') return [];
+  return [
+    { time: { elapsed: 12 }, type: 'Goal', detail: 'Normal Goal', player: { name: 'Vinícius Jr.' }, team: { name: 'ريال مدريد' } },
+    { time: { elapsed: 34 }, type: 'Card', detail: 'Yellow Card', player: { name: 'Rodri' }, team: { name: 'مان سيتي' } },
+    { time: { elapsed: 45 }, type: 'Goal', detail: 'Penalty', player: { name: 'Haaland' }, team: { name: 'مان سيتي' } },
+    { time: { elapsed: 67 }, type: 'Goal', detail: 'Normal Goal', player: { name: 'Bellingham' }, team: { name: 'ريال مدريد' } },
+    { time: { elapsed: 78 }, type: 'subst', detail: 'Substitution', player: { name: 'Modric' }, team: { name: 'ريال مدريد' } },
+  ];
+};
 
 export default function MatchDetailPage() {
   const { id } = useParams();
@@ -90,7 +93,7 @@ export default function MatchDetailPage() {
         </TabsList>
 
         <TabsContent value="events" className="mt-4">
-          <MatchEvents events={MOCK_EVENTS} teams={match.teams} />
+          <MatchEvents events={GET_MOCK_EVENTS(match.fixture.id)} teams={match.teams} />
         </TabsContent>
 
         <TabsContent value="lineup" className="mt-4">

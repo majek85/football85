@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 void main() async {
   const supabaseUrl = 'https://utyxvzrazuwonedcdubs.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0eXh2enJhenV3b25lZGNkdWJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU0OTYwMjEsImV4cCI6MjAzMTA3MjAyMX0.jA5aL2M612S_JzH2dO3g3-V9M7Bw5N-QO_c8Y-L2gE0';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0eXh2enJhenV3b25lZGNkdWJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxOTU5MzQsImV4cCI6MjA5Mjc3MTkzNH0.YPKOxYki21WfhgzN1HIvPKuHyVjFwJ-VfofnN7OJwCI';
 
   final headers = {
     'Content-Type': 'application/json',

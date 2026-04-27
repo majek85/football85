@@ -239,15 +239,15 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
   }
 
   Widget _buildTimelineTab(BuildContext context, bool isDark) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        _buildTimelineItem(context, "Rice 90+2'", "Goal!", Icons.sports_soccer, true),
-        _buildTimelineItem(context, "Mudryk 89'", "Goal!", Icons.sports_soccer, false),
-        _buildTimelineItem(context, "Jackson 55'", "Goal!", Icons.sports_soccer, false),
-        _buildTimelineItem(context, "Saka 44'", "Goal!", Icons.sports_soccer, true),
-        _buildTimelineItem(context, "Sterling 9'", "Goal!", Icons.sports_soccer, false),
-      ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Text(
+          context.watch<LanguageProvider>().isArabic ? "الأحداث غير متوفرة لهذه المباراة حالياً" : "Timeline events not available for this match yet",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      ),
     );
   }
 
@@ -282,14 +282,14 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
   }
 
   Widget _buildLineupsTab(BuildContext context, bool isDark) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          _buildTeamLineup(context, widget.match.homeTeam, ["Raya", "White", "Saliba", "Gabriel", "Zinchenko", "Rice", "Odegaard", "Havertz", "Saka", "Jesus", "Martinelli"]),
-          const SizedBox(height: 32),
-          _buildTeamLineup(context, widget.match.awayTeam, ["Sanchez", "James", "Silva", "Colwill", "Cucurella", "Enzo", "Caicedo", "Gallagher", "Sterling", "Jackson", "Palmer"]),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Text(
+          context.watch<LanguageProvider>().isArabic ? "التشكيلة غير متوفرة حالياً" : "Lineups not available yet",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
       ),
     );
   }
@@ -323,17 +323,15 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        _buildStatRow(context, "Possession", 55, 45),
-        _buildStatRow(context, "Shots on Target", 8, 3),
-        _buildStatRow(context, "Total Shots", 14, 10),
-        _buildStatRow(context, "Corners", 6, 4),
-        _buildStatRow(context, "Offsides", 2, 1),
-        _buildStatRow(context, "Fouls", 10, 12),
-        _buildStatRow(context, "Yellow Cards", 1, 3),
-      ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Text(
+          context.watch<LanguageProvider>().isArabic ? "الإحصائيات ستتوفر فور بدء المباراة" : "Stats will be available once the match starts",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      ),
     );
   }
 
@@ -480,13 +478,15 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> {
 
     // Use Mock if no data or for demo
     if (leagueStandings == null || leagueStandings.isEmpty) {
-      leagueStandings = [
-        {'rank': 1, 'team': {'name': 'Arsenal', 'logo': 'https://media.api-sports.io/football/teams/42.png'}, 'played': 30, 'points': 71},
-        {'rank': 2, 'team': {'name': 'Liverpool', 'logo': 'https://media.api-sports.io/football/teams/40.png'}, 'played': 30, 'points': 70},
-        {'rank': 3, 'team': {'name': 'Man City', 'logo': 'https://media.api-sports.io/football/teams/50.png'}, 'played': 30, 'points': 67},
-        {'rank': 4, 'team': {'name': 'Aston Villa', 'logo': 'https://media.api-sports.io/football/teams/66.png'}, 'played': 31, 'points': 60},
-        {'rank': 5, 'team': {'name': 'Spurs', 'logo': 'https://media.api-sports.io/football/teams/47.png'}, 'played': 30, 'points': 57},
-      ];
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Text(
+            context.watch<LanguageProvider>().isArabic ? "جدول الترتيب غير متوفر حالياً" : "Standings not available yet",
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+        ),
+      );
     }
 
     return SingleChildScrollView(

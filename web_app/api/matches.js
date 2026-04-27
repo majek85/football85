@@ -24,7 +24,7 @@ export default async (req, res) => {
     const supabase = createClient(SUPA_URL, SUPA_KEY);
 
     try {
-        const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const today = new Date().toISOString().slice(0, 10);
         // 1. جلب البيانات
         const response = await fetch(
             `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${today}`,
