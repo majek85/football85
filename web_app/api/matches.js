@@ -25,52 +25,52 @@ export default async (req, res) => {
 
     try {
         const today = new Date().toISOString().slice(0, 10);
-        // 1. جلب البيانات
+        // 1. جلب البيانات من المزود الذي يعمل
         const response = await fetch(
             `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${today}`,
             {
                 headers: {
-                    'x-rapidapi-key': API_KEY,
+                    'x-rapidapi-key': 'd31b5701ddmshadf6c49da2901cep1473dfjsn517950e3fe2f',
                     'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
                 }
             }
-        )
+        );
 
         const result = await response.json();
+        const matches = result.response?.matches || [];
 
-        if (!response.ok || result.message) {
-            throw new Error(`RapidAPI Error: ${result.message || response.statusText}`);
+        if (matches.length === 0) {
+            return res.status(200).json({ message: "No matches found today.", count: 0 });
         }
-
-        const matches = result.response?.matches || result.matches || [];
 
         // 2. تجهيز البيانات
         const formatted = matches.map(m => ({
             fixture_id: m.id,
-            home_team: m.home?.name || 'Unknown',
-            away_team: m.away?.name || 'Unknown',
-            home_logo: null, // الـ API الجديد لا يرسل شعارات في هذه الصفحة
-            away_logo: null,
-            score: `${m.home?.score || 0}-${m.away?.score || 0}`,
-            status: m.status?.finished ? 'FT' : (m.status?.started ? 'LIVE' : 'NS'),
-            match_time: m.status?.utcTime || new Date().toISOString()
+            home_team: m.home?.name || "Unknown",
+            away_team: m.away?.name || "Unknown",
+            home_logo: m.home?.logo,
+            away_logo: m.away?.logo,
+            score: m.status?.scoreStr || "0-0",
+            status: m.status?.type || "NS",
+            match_time: m.status?.utcTime || new Date().toISOString(),
+            created_at: new Date()
         }));
 
-        // 3. حفظ في Supabase
-        const { error } = await supabase
+        // 3. حفظ/تحديث البيانات في Supabase
+        const { error: supaError } = await supabase
             .from('matches')
-            .upsert(formatted, { onConflict: 'fixture_id' })
+            .upsert(formatted, { onConflict: 'fixture_id' });
 
-        if (error) throw error
+        if (supaError) throw supaError;
 
         return res.status(200).json({
-            message: 'Success!',
-            count: matches.length,
-            data: formatted,
-            timestamp: new Date().toISOString()
-        })
+            message: "Success!",
+            count: formatted.length,
+            data: formatted
+        });
+
     } catch (e) {
-        console.error('Error:', e.message)
-        return res.status(500).json({ error: e.message })
+        console.error('Error:', e.message);
+        return res.status(500).json({ error: e.message });
     }
 }
