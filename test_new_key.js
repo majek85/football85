@@ -1,11 +1,10 @@
 async function test() {
     const API_KEY = 'd31b5701ddmshadf6c49da2901cep1473dfjsn517950e3fe2f';
-    const today = '2026-04-25';
+    const todayNoDashes = '20260427';
     
-    console.log(`Testing Free Football API with NEW KEY for date: ${today}...`);
+    console.log(`Testing Free Football API with NEW KEY for date: ${todayNoDashes}...`);
     
     try {
-        const todayNoDashes = '20260427';
         const response = await fetch(
             `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${todayNoDashes}`,
             {
@@ -20,13 +19,16 @@ async function test() {
         console.log(`Status: ${response.status}`);
         
         if (result.status === "success" && result.response.matches) {
-            const pl = result.response.matches.filter(m => m.league?.id === 47);
-            console.log(`Success! Found ${pl.length} Premier League matches.`);
-            if (pl.length > 0) {
-                console.log('Sample:', pl[0].home.name, 'vs', pl[0].away.name);
-            }
+            console.log(`Total Matches Found Today: ${result.response.matches.length}`);
+            const search = result.response.matches.filter(m => 
+                m.home?.name?.toLowerCase().includes('manchester') || 
+                m.away?.name?.toLowerCase().includes('manchester') ||
+                m.home?.name?.toLowerCase().includes('brentford') ||
+                m.away?.name?.toLowerCase().includes('brentford')
+            );
+            console.log('Search Results:', JSON.stringify(search, null, 2));
         } else {
-            console.log('No matches found or structure changed:', JSON.stringify(result).slice(0, 1000));
+            console.log('No matches found in standard structure:', JSON.stringify(result).slice(0, 500));
         }
     } catch (e) {
         console.error('Test Failed:', e.message);

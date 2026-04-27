@@ -29,31 +29,54 @@ export default async (req, res) => {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const todayNoDashes = `${year}${month}${day}`;
+        const todayDashes = `${year}-${month}-${day}`;
 
-        // 1. جلب البيانات من المزود الذي يعمل (صيغة YYYYMMDD)
-        const response = await fetch(
-            `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${todayNoDashes}`,
-            {
-                headers: {
-                    'x-rapidapi-key': 'd31b5701ddmshadf6c49da2901cep1473dfjsn517950e3fe2f',
-                    'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
+        // 1. محاولة جلب البيانات من المزود الأول (RapidAPI)
+        let matches = [];
+        try {
+            const response = await fetch(
+                `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${todayNoDashes}`,
+                {
+                    headers: {
+                        'x-rapidapi-key': 'd31b5701ddmshadf6c49da2901cep1473dfjsn517950e3fe2f',
+                        'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
+                    }
                 }
-            }
-        );
-
-        const result = await response.json();
-        const matches = result.response?.matches || [];
-
-        // 2. فلترة المباريات لتشمل الدوري الإنجليزي فقط (ID: 47)
-        const premierLeagueMatches = matches.filter(m => m.league?.id === 47);
-
-        if (premierLeagueMatches.length === 0) {
-            // في حال عدم وجود مباريات اليوم، يمكننا مسح القديم أو ترك رسالة
-            return res.status(200).json({ message: "No Premier League matches found for today.", count: 0 });
+            );
+            const result = await response.json();
+            matches = result.response?.matches?.filter(m => m.league?.id === 47) || [];
+        } catch (e) {
+            console.error('RapidAPI Fetch Error:', e.message);
         }
 
-        // 3. تجهيز البيانات
-        const formatted = premierLeagueMatches.map(m => ({
+        // 2. إذا لم يجد مباريات، نجرب المزود الاحترافي المجاني (TheSportsDB)
+        if (matches.length === 0) {
+            console.log('Falling back to TheSportsDB for Premier League matches...');
+            try {
+                // نستخدم الدوري الإنجليزي الممتاز (ID: 4328 في TheSportsDB)
+                const tsdbRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${todayDashes}&l=4328`);
+                const tsdbData = await tsdbRes.json();
+                
+                if (tsdbData.events) {
+                    matches = tsdbData.events.map(ev => ({
+                        id: ev.idEvent,
+                        home: { name: ev.strHomeTeam, logo: ev.strHomeTeamBadge },
+                        away: { name: ev.strAwayTeam, logo: ev.strAwayTeamBadge },
+                        status: { scoreStr: `${ev.intHomeScore || 0}-${ev.intAwayScore || 0}`, type: ev.strStatus, utcTime: ev.strTimestamp },
+                        league: { id: 47 }
+                    }));
+                }
+            } catch (e) {
+                console.error('TheSportsDB Fetch Error:', e.message);
+            }
+        }
+
+        if (matches.length === 0) {
+            return res.status(200).json({ message: "No matches found today.", count: 0 });
+        }
+
+        // 3. تجهيز البيانات للرفع
+        const formatted = matches.map(m => ({
             fixture_id: m.id,
             home_team: m.home?.name || "Unknown",
             away_team: m.away?.name || "Unknown",
@@ -65,7 +88,7 @@ export default async (req, res) => {
             created_at: new Date()
         }));
 
-        // 4. حفظ/تحديث البيانات في Supabase
+        // 4. حفظ البيانات في Supabase
         const { error: supaError } = await supabase
             .from('matches')
             .upsert(formatted, { onConflict: 'fixture_id' });
@@ -79,7 +102,7 @@ export default async (req, res) => {
         });
 
     } catch (e) {
-        console.error('Error:', e.message);
+        console.error('General Error:', e.message);
         return res.status(500).json({ error: e.message });
     }
 }
