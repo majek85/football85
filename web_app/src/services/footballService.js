@@ -115,17 +115,17 @@ export const footballAPI = {
       // Use the actual production URL if available, or the current one
       fetch('https://football85.vercel.app/api/matches').catch(() => {});
 
-      const start = new Date();
-      start.setDate(start.getDate() - 7);
-      const end = new Date();
-      end.setDate(end.getDate() + 7);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
 
-      // 2. نجلب المباريات من Supabase (نطاق واسع للاختبار)
+      // 2. نجلب المباريات من Supabase (مباريات اليوم فقط)
       const { data, error } = await supabase
         .from('matches')
         .select('*')
-        .gte('match_time', start.toISOString())
-        .lt('match_time', end.toISOString())
+        .gte('match_time', today.toISOString())
+        .lt('match_time', tomorrow.toISOString())
         .order('match_time', { ascending: true });
 
       if (error) throw error;

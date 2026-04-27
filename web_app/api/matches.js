@@ -24,10 +24,15 @@ export default async (req, res) => {
     const supabase = createClient(SUPA_URL, SUPA_KEY);
 
     try {
-        const today = new Date().toISOString().slice(0, 10);
-        // 1. جلب البيانات من المزود الذي يعمل
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const todayNoDashes = `${year}${month}${day}`;
+
+        // 1. جلب البيانات من المزود الذي يعمل (صيغة YYYYMMDD)
         const response = await fetch(
-            `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${today}`,
+            `https://free-api-live-football-data.p.rapidapi.com/football-get-matches-by-date?date=${todayNoDashes}`,
             {
                 headers: {
                     'x-rapidapi-key': 'd31b5701ddmshadf6c49da2901cep1473dfjsn517950e3fe2f',
@@ -39,12 +44,16 @@ export default async (req, res) => {
         const result = await response.json();
         const matches = result.response?.matches || [];
 
-        if (matches.length === 0) {
-            return res.status(200).json({ message: "No matches found today.", count: 0 });
+        // 2. فلترة المباريات لتشمل الدوري الإنجليزي فقط (ID: 47)
+        const premierLeagueMatches = matches.filter(m => m.league?.id === 47);
+
+        if (premierLeagueMatches.length === 0) {
+            // في حال عدم وجود مباريات اليوم، يمكننا مسح القديم أو ترك رسالة
+            return res.status(200).json({ message: "No Premier League matches found for today.", count: 0 });
         }
 
-        // 2. تجهيز البيانات
-        const formatted = matches.map(m => ({
+        // 3. تجهيز البيانات
+        const formatted = premierLeagueMatches.map(m => ({
             fixture_id: m.id,
             home_team: m.home?.name || "Unknown",
             away_team: m.away?.name || "Unknown",
@@ -56,7 +65,7 @@ export default async (req, res) => {
             created_at: new Date()
         }));
 
-        // 3. حفظ/تحديث البيانات في Supabase
+        // 4. حفظ/تحديث البيانات في Supabase
         const { error: supaError } = await supabase
             .from('matches')
             .upsert(formatted, { onConflict: 'fixture_id' });

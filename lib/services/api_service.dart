@@ -26,10 +26,10 @@ class ApiService {
     await triggerVercelUpdate();
     
     final today = DateTime.now();
-    final dateStr = DateFormat('yyyy-MM-dd').format(today.subtract(const Duration(days: 7)));
-    final tomorrowStr = DateFormat('yyyy-MM-dd').format(today.add(const Duration(days: 7)));
+    final dateStr = DateFormat('yyyy-MM-dd').format(today);
+    final tomorrowStr = DateFormat('yyyy-MM-dd').format(today.add(const Duration(days: 1)));
 
-    // 2. Fetch directly from Supabase Database (broad range for testing)
+    // 2. Fetch directly from Supabase Database (today's matches only)
     final url = '${AppConstants.supabaseUrl}/rest/v1/matches?select=*&match_time=gte.$dateStr&match_time=lt.$tomorrowStr&order=match_time.asc';
     try {
       final response = await http.get(Uri.parse(url), headers: _supabaseHeaders);
