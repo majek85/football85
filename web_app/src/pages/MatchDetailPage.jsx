@@ -10,14 +10,7 @@ import LineupPitch from '@/components/matches/LineupPitch';
 import AdBanner from '@/components/layout/AdBanner';
 
 const GET_MOCK_EVENTS = (id) => {
-  if (id !== '101') return [];
-  return [
-    { time: { elapsed: 12 }, type: 'Goal', detail: 'Normal Goal', player: { name: 'Vinícius Jr.' }, team: { name: 'ريال مدريد' } },
-    { time: { elapsed: 34 }, type: 'Card', detail: 'Yellow Card', player: { name: 'Rodri' }, team: { name: 'مان سيتي' } },
-    { time: { elapsed: 45 }, type: 'Goal', detail: 'Penalty', player: { name: 'Haaland' }, team: { name: 'مان سيتي' } },
-    { time: { elapsed: 67 }, type: 'Goal', detail: 'Normal Goal', player: { name: 'Bellingham' }, team: { name: 'ريال مدريد' } },
-    { time: { elapsed: 78 }, type: 'subst', detail: 'Substitution', player: { name: 'Modric' }, team: { name: 'ريال مدريد' } },
-  ];
+  return [];
 };
 
 export default function MatchDetailPage() {

@@ -182,53 +182,7 @@ export const footballAPI = {
 };
 
 // ============ MOCK FALLBACK DATA ============
-export const MOCK_MATCHES = [
-  {
-    fixture: { id: '101', date: new Date().toISOString(), status: { short: '2H', elapsed: 72 } },
-    league: { id: '4480', name: 'دوري أبطال أوروبا', country: 'Europe', logo: null },
-    teams: {
-      home: { id: '541', name: 'ريال مدريد', logo: 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11516580922.png' },
-      away: { id: '50', name: 'مان سيتي', logo: 'https://www.thesportsdb.com/images/media/team/badge/vwjuus1473503711.png' },
-    },
-    goals: { home: 2, away: 1 },
-  },
-  {
-    fixture: { id: '102', date: new Date(Date.now() + 3600000).toISOString(), status: { short: 'NS', elapsed: null } },
-    league: { id: '4328', name: 'الدوري الإنجليزي', country: 'England', logo: null },
-    teams: {
-      home: { id: '42', name: 'أرسنال', logo: 'https://www.thesportsdb.com/images/media/team/badge/uyhbfe1612467562.png' },
-      away: { id: '49', name: 'تشيلسي', logo: 'https://www.thesportsdb.com/images/media/team/badge/yvwvtu1448813215.png' },
-    },
-    goals: { home: null, away: null },
-  },
-  {
-    fixture: { id: '103', date: new Date(Date.now() - 7200000).toISOString(), status: { short: 'FT', elapsed: 90 } },
-    league: { id: '307', name: 'دوري روشن السعودي', country: 'Saudi Arabia', logo: null },
-    teams: {
-      home: { id: '2932', name: 'الهلال', logo: null },
-      away: { id: '2933', name: 'النصر', logo: null },
-    },
-    goals: { home: 3, away: 2 },
-  },
-  {
-    fixture: { id: '104', date: new Date(Date.now() + 7200000).toISOString(), status: { short: 'NS', elapsed: null } },
-    league: { id: '4335', name: 'الدوري الإسباني', country: 'Spain', logo: null },
-    teams: {
-      home: { id: '529', name: 'برشلونة', logo: 'https://www.thesportsdb.com/images/media/team/badge/a7zu9n1409067051.png' },
-      away: { id: '530', name: 'أتلتيكو مدريد', logo: 'https://www.thesportsdb.com/images/media/team/badge/uvuswu1448813986.png' },
-    },
-    goals: { home: null, away: null },
-  },
-  {
-    fixture: { id: '105', date: new Date(Date.now() - 3600000).toISOString(), status: { short: 'FT', elapsed: 90 } },
-    league: { id: '4332', name: 'الدوري الألماني', country: 'Germany', logo: null },
-    teams: {
-      home: { id: '133604', name: 'بايرن ميونخ', logo: 'https://www.thesportsdb.com/images/media/team/badge/tsqtu11516580399.png' },
-      away: { id: '133615', name: 'دورتموند', logo: 'https://www.thesportsdb.com/images/media/team/badge/xzqdr11516580922.png' },
-    },
-    goals: { home: 1, away: 1 },
-  },
-];
+export const MOCK_MATCHES = [];
 
 export const MOCK_NEWS = [
   { id: 1, title: 'ريال مدريد يتأهل لنهائي دوري الأبطال بفوز دراماتيكي', category: 'دوري الأبطال', time: 'منذ 30 دقيقة', image: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=800&auto=format&fit=crop' },
